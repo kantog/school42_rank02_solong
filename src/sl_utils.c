@@ -6,7 +6,7 @@
 /*   By: bclaeys <bclaeys@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 12:26:30 by bclaeys           #+#    #+#             */
-/*   Updated: 2024/08/26 17:39:46 by bclaeys          ###   ########.fr       */
+/*   Updated: 2024/08/27 11:09:35 by bclaeys          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,17 @@ void	ft_set_to_null(t_data *game)
 	game->one_player_check = 0;
 	game->one_exit_check = 0;
 	game->flooder_map = NULL;
+	game->map_path = NULL;
 }
 
-int	ft_check_map_y_length(char *map_path)
+int	ft_click_close(t_data *sl)
+{
+	sl_free_all(sl);
+	exit(1);
+}
+
+
+int	ft_check_map_y_length(t_data *sl, char *map_path)
 {
 	int		i;
 	int		fd;
@@ -62,6 +70,11 @@ int	ft_check_map_y_length(char *map_path)
 
 	i = 0;
 	fd = open(map_path, O_RDONLY);
+	if (fd == -1)
+	{
+		sl_free_all(sl);
+		exit(-1);
+	}
 	line = get_next_line(fd);
 	while (line != NULL)
 	{
@@ -74,7 +87,7 @@ int	ft_check_map_y_length(char *map_path)
 	return (i);
 }
 
-int	ft_check_map_x_length(char *map_path)
+int	ft_check_map_x_length(t_data *sl, char *map_path)
 {
 	int		i;
 	int		fd;
@@ -82,6 +95,11 @@ int	ft_check_map_x_length(char *map_path)
 
 	i = 0;
 	fd = open(map_path, O_RDONLY);
+	if (fd == -1)
+	{
+		sl_free_all(sl);
+		exit(-1);
+	}
 	line = get_next_line(fd);
 	while (line[i] != '\0' && line[i] != '\n')
 		i++;
@@ -90,10 +108,10 @@ int	ft_check_map_x_length(char *map_path)
 	return (i);
 }
 
-int	ft_init(t_data *game, char *map_path)
+int	ft_init(t_data *game)
 {
-	game->y_axis = (ft_check_map_y_length(map_path) + 2) * TILE;
-	game->x_axis = (ft_check_map_x_length(map_path) + 2) * TILE;
+	game->y_axis = (ft_check_map_y_length(game, game->map_path) + 2) * TILE;
+	game->x_axis = (ft_check_map_x_length(game, game->map_path) + 2) * TILE;
 	game->collectibles_amount = 0;
 	game->mlx = mlx_init();
 	if (game->mlx == NULL)
@@ -105,5 +123,10 @@ int	ft_init(t_data *game, char *map_path)
 	game->img = mlx_new_image(game->mlx, game->x_axis, game->y_axis);
 	if (game->img == NULL)
 		return (sl_free_all(game));
+	game->addr = mlx_get_data_addr(game->img, &game->bits_per_pixel,
+			&game->line_length, &game->endian);
+	if (game->addr == NULL)
+		return (sl_free_all(game));
+	ft_set_paths(game);
 	return (1);
 }

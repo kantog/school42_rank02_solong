@@ -6,7 +6,7 @@
 /*   By: bclaeys <bclaeys@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 13:32:05 by bclaeys           #+#    #+#             */
-/*   Updated: 2024/08/26 18:39:43 by bclaeys          ###   ########.fr       */
+/*   Updated: 2024/08/27 11:10:10 by bclaeys          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,14 +92,17 @@ int	main(int argc, char **argv)
 		ft_printf("No map given.\n");
 		return (0);
 	}
-	if (ft_map_check(&game, argv[1]) != 0)
+	game.map_path = argv[1];
+	if (ft_map_check(&game) != 0)
+	{
+		sl_free_all(&game);	
 		return (ft_printf("Error\nInvalid map\n") - 17);
-	if (ft_init(&game, argv[1]) == 0)
+	}
+	if (ft_init(&game) == 0)
 		return (0);
-	game.addr = mlx_get_data_addr(game.img, &game.bits_per_pixel,
-			&game.line_length, &game.endian);
 	ft_create_map(&game);
 	ft_printf("writing screen\n");
 	mlx_key_hook(game.mlx_win, ft_handle_input, &game);
+	mlx_hook(game.mlx_win, 17, 0, ft_click_close, &game);
 	mlx_loop(game.mlx);
 }

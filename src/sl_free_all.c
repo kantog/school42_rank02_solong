@@ -6,7 +6,7 @@
 /*   By: bclaeys <bclaeys@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/22 11:38:23 by bclaeys           #+#    #+#             */
-/*   Updated: 2024/08/25 16:47:19 by bclaeys          ###   ########.fr       */
+/*   Updated: 2024/08/27 10:51:57 by bclaeys          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ int	sl_free_all(t_data *sl)
 {
 	sl_free_map(sl->flooder_map);
 	sl_free_map(sl->map);
+	if (sl->img)
+	{
 	mlx_destroy_image(sl->mlx, sl->wall);
 	mlx_destroy_image(sl->mlx, sl->collectible);
 	mlx_destroy_image(sl->mlx, sl->floor);
@@ -41,5 +43,6 @@ int	sl_free_all(t_data *sl)
 	mlx_destroy_window(sl->mlx, sl->mlx_win);
 	mlx_destroy_display(sl->mlx);
 	free(sl->mlx);
+	}
 	return (0);
 }

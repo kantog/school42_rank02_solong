@@ -6,7 +6,7 @@
 /*   By: bclaeys <bclaeys@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 19:17:57 by bclaeys           #+#    #+#             */
-/*   Updated: 2024/08/25 17:34:53 by bclaeys          ###   ########.fr       */
+/*   Updated: 2024/08/27 10:48:04 by bclaeys          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,13 +73,15 @@ static int	ft_render_map(t_data *sl)
 	char	*line;
 
 	line = NULL;
-	sl->map = malloc(sizeof(char *) * (ft_check_map_y_length() + 1));
+	sl->map = malloc(sizeof(char *) * (ft_check_map_y_length(sl, sl->map_path) + 1));
 	if (!sl->map)
 		return (-1);
-	map_fd = open(MAP_PATH, O_RDONLY);
+	map_fd = open(sl->map_path, O_RDONLY);
 	if (map_fd == -1)
-		return (-1);
-	ft_set_paths(sl);
+	{
+		sl_free_all(sl);
+		exit(-1);
+	}
 	line = get_next_line(map_fd);
 	ft_parse_bitmap(sl, map_fd, line, 0);
 	close(map_fd);

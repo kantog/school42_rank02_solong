@@ -6,7 +6,7 @@
 /*   By: bclaeys <bclaeys@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 12:24:19 by bclaeys           #+#    #+#             */
-/*   Updated: 2024/08/26 16:30:01 by bclaeys          ###   ########.fr       */
+/*   Updated: 2024/08/27 10:59:01 by bclaeys          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,10 @@ int	ft_create_flooder_map(t_data *sl, int map_fd, char *line, int i)
 		sl->flooder_map[y] = malloc(sizeof(char) * (ft_strlen(line) + 1));
 		while (line[i] != 0 && line[i] != '\n')
 			if (flooder_bitmap_char_handler(sl, x++, y, line[i++]) == -1)
+			{
+				free(line);
 				return (-1);
+			}
 		sl->flooder_map[y][x] = '\0';
 		x = 0;
 		y++;
@@ -99,19 +102,22 @@ int	ft_check_rect_walls(t_data *sl, int i, int y_amount)
 	return (0);
 }
 
-int	ft_map_check(t_data *sl, char *map_path)
+int	ft_map_check(t_data *sl)
 {
 	int		map_fd;
 	int		map_check;
 	char	*line;
 
-	map_check = 1;
-	sl->flooder_map = malloc(sizeof(char *) * (ft_check_map_y_length(map_path) + 1));
+	map_check = 0;
+	sl->flooder_map = malloc(sizeof(char *) * (ft_check_map_y_length(sl, sl->map_path) + 1));
 	if (!sl->flooder_map)
 		return (-1);
-	map_fd = open(map_path, O_RDONLY);
+	map_fd = open(sl->map_path, O_RDONLY);
 	if (map_fd == -1)
-		return (-1);
+	{
+		sl_free_all(sl);
+		exit(-1);
+	}
 	line = get_next_line(map_fd);
 	if (ft_create_flooder_map(sl, map_fd, line, 0) != 1
 		|| sl->collectibles_amount == 0)
