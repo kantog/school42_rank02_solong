@@ -6,7 +6,7 @@
 /*   By: bclaeys <bclaeys@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 19:17:57 by bclaeys           #+#    #+#             */
-/*   Updated: 2024/08/27 10:48:04 by bclaeys          ###   ########.fr       */
+/*   Updated: 2024/08/27 17:52:57 by bclaeys          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,18 +43,18 @@ static void	ft_parse_bitmap(t_data *sl, int map_fd, char *line, int i)
 	int	y;
 	int	x;
 
-	i = 0;
 	y = TILE;
 	x = TILE;
 	while (line != NULL)
 	{
 		sl->map[y / TILE - 1] = malloc(sizeof(char) * (ft_strlen(line) + 1));
+		if (!sl->map[y / TILE - 1])
+			ft_malloc_error(sl, line, map_fd);
 		while (line[i] != 0 && line[i] != '\n')
 		{
 			sl_put_tile(sl, line[i], x, y);
-			ft_bitmap_char_handler(sl, x, y, line[i]);
+			ft_bitmap_char_handler(sl, x, y, line[i++]);
 			x += TILE;
-			i++;
 		}
 		sl->map[(y / TILE) - 1][(x / TILE) - 1] = '\0';
 		x = TILE;
@@ -73,10 +73,11 @@ static int	ft_render_map(t_data *sl)
 	char	*line;
 
 	line = NULL;
-	sl->map = malloc(sizeof(char *) * (ft_check_map_y_length(sl, sl->map_path) + 1));
-	if (!sl->map)
-		return (-1);
 	map_fd = open(sl->map_path, O_RDONLY);
+	sl->map = malloc(sizeof(char *) * (ft_check_map_y_length(sl, sl->map_path)
+				+ 1));
+	if (!sl->map)
+		ft_malloc_error(sl, line, map_fd);
 	if (map_fd == -1)
 	{
 		sl_free_all(sl);

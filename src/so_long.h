@@ -6,7 +6,7 @@
 /*   By: bclaeys <bclaeys@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 12:24:20 by bclaeys           #+#    #+#             */
-/*   Updated: 2024/08/27 11:11:09 by bclaeys          ###   ########.fr       */
+/*   Updated: 2024/08/27 17:49:01 by bclaeys          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ typedef struct s_data
 	int		exit_binary;
 	int		steps;
 	int		one_player_check;
+	int		exit_reachable;
 	int		one_exit_check;
 	char	*map_path;
 }			t_data;
@@ -65,10 +66,12 @@ int			ft_check_map_y_length(t_data *sl, char *map_path);
 int			ft_check_map_x_length(t_data *sl, char *map_path);
 int			ft_init(t_data *game);
 int			ft_click_close(t_data *sl);
+void		ft_check_path_ber(char *map_path);
+void		ft_malloc_error(t_data *sl, char *line, int map_fd);
 
 // flooder function //
 
-int	ft_map_check(t_data *sl);
+int			ft_map_check(t_data *sl);
 
 // map creating function //
 

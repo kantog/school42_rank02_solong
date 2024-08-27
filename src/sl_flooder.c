@@ -6,7 +6,7 @@
 /*   By: bclaeys <bclaeys@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 12:24:19 by bclaeys           #+#    #+#             */
-/*   Updated: 2024/08/27 10:59:01 by bclaeys          ###   ########.fr       */
+/*   Updated: 2024/08/27 17:40:39 by bclaeys          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,30 +40,30 @@ int	ft_create_flooder_map(t_data *sl, int map_fd, char *line, int i)
 	while (line != NULL)
 	{
 		sl->flooder_map[y] = malloc(sizeof(char) * (ft_strlen(line) + 1));
-		while (line[i] != 0 && line[i] != '\n')
+		if (!sl->flooder_map[y])
+			ft_malloc_error(sl, line, map_fd);
+		while (line[i] != 0 && line[i] != '\n' && line)
 			if (flooder_bitmap_char_handler(sl, x++, y, line[i++]) == -1)
-			{
 				free(line);
-				return (-1);
-			}
-		sl->flooder_map[y][x] = '\0';
+		if (!line)
+			return (-1);
+		sl->flooder_map[y++][x] = '\0';
 		x = 0;
-		y++;
 		i = 0;
 		free(line);
 		line = get_next_line(map_fd);
 	}
 	free(line);
 	sl->flooder_map[y] = NULL;
-	if (sl->one_player_check == 1 && sl->one_exit_check == 1)
-		return (1);
-	return (-1);
+	return (sl->one_player_check - sl->one_exit_check + 1);
 }
 
 int	ft_flooder(t_data *sl, int x, int y, int collectibles_amount)
 {
 	if (sl->flooder_map[y][x] == 'C')
 		collectibles_amount--;
+	if (sl->flooder_map[y][x] == 'E')
+		sl->exit_reachable--;
 	if (sl->flooder_map[y][x] == '1' || sl->flooder_map[y][x] == '2')
 		return (collectibles_amount);
 	sl->flooder_map[y][x] = '2';
@@ -105,29 +105,28 @@ int	ft_check_rect_walls(t_data *sl, int i, int y_amount)
 int	ft_map_check(t_data *sl)
 {
 	int		map_fd;
-	int		map_check;
 	char	*line;
 
-	map_check = 0;
-	sl->flooder_map = malloc(sizeof(char *) * (ft_check_map_y_length(sl, sl->map_path) + 1));
-	if (!sl->flooder_map)
-		return (-1);
 	map_fd = open(sl->map_path, O_RDONLY);
 	if (map_fd == -1)
 	{
 		sl_free_all(sl);
 		exit(-1);
 	}
+	sl->flooder_map = malloc(sizeof(char *) * (ft_check_map_y_length(sl,
+					sl->map_path) + 1));
 	line = get_next_line(map_fd);
+	if (!sl->flooder_map)
+		ft_malloc_error(sl, line, map_fd);
 	if (ft_create_flooder_map(sl, map_fd, line, 0) != 1
 		|| sl->collectibles_amount == 0)
 		return (-1);
 	close(map_fd);
 	if (ft_check_rect_walls(sl, 0, 0) == -1)
 		return (-1);
-	map_check = ft_flooder(sl, sl->current_x, sl->current_y,
+	sl->exit_reachable = 1;
+	map_fd = ft_flooder(sl, sl->current_x, sl->current_y,
 			sl->collectibles_amount);
 	sl->current_y = 0;
-	sl->current_y = 0;
-	return (map_check);
+	return (map_fd - sl->exit_reachable);
 }

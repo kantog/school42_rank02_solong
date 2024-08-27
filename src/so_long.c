@@ -6,7 +6,7 @@
 /*   By: bclaeys <bclaeys@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 13:32:05 by bclaeys           #+#    #+#             */
-/*   Updated: 2024/08/27 11:10:10 by bclaeys          ###   ########.fr       */
+/*   Updated: 2024/08/27 14:49:14 by bclaeys          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,20 +86,24 @@ int	main(int argc, char **argv)
 {
 	t_data	game;
 
-	ft_set_to_null(&game);
 	if (argc < 2)
 	{
 		ft_printf("No map given.\n");
 		return (0);
 	}
+	ft_set_to_null(&game);
 	game.map_path = argv[1];
+	ft_check_path_ber(argv[1]);
 	if (ft_map_check(&game) != 0)
 	{
-		sl_free_all(&game);	
+		sl_free_all(&game);
 		return (ft_printf("Error\nInvalid map\n") - 17);
 	}
 	if (ft_init(&game) == 0)
+	{
+		ft_printf("Something went wrong while initializing the game.\n");
 		return (0);
+	}
 	ft_create_map(&game);
 	ft_printf("writing screen\n");
 	mlx_key_hook(game.mlx_win, ft_handle_input, &game);
